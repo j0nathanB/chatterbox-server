@@ -52,7 +52,41 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end('Hello, World!');
+  if(request.method === "GET") {
+    if (request.url === "/classes/messages") {
+      var obj = { results : [] };
+      response.end(JSON.stringify(obj));
+    } else {
+      response.end('no url extension:  GET Hello, World! request.url = ', request.url);
+    }
+  } 
+
+  if (request.method === 'POST') {
+    console.log(statusCode + " " + request.method + " to " + request.url);
+    var fullBody = '';
+
+    if (request.url === "/classes/messages") {
+
+      request.on('end', function() {
+        var obj = { results : [] };
+        response.end(JSON.stringify(obj));
+        // request ended -> do something with the data
+        response.writeHead(200, "OK", {'Content-Type': 'text/html'});
+        
+        // parse the received body data
+        var decodedBody = querystring.parse(fullBody);
+
+        // output the decoded data to the HTTP response          
+        response.write('<html><head><title>Post data</title></head><body><pre>');
+        response.write(utils.inspect(decodedBody));
+        response.write('</pre></body></html>');
+        
+        response.end();
+      });
+    } else {
+      response.end('JUST Hello, World!');
+    }
+  }
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -70,4 +104,12 @@ var defaultCorsHeaders = {
   'access-control-allow-headers': 'content-type, accept',
   'access-control-max-age': 10 // Seconds.
 };
+
+module.exports = {
+  requestHandler : requestHandler
+};
+
+
+
+
 
