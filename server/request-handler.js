@@ -12,6 +12,8 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+var output = {results : []} ;
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -50,7 +52,6 @@ var requestHandler = function(request, response) {
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-  var output = {results : []} ;
 
   // Tell the client we are sending them plain text.
   //
@@ -72,7 +73,11 @@ var requestHandler = function(request, response) {
   if(request.method === "GET") {
     if (request.url === "/classes/messages") {
       statusCode = 200;
+      // request.on('data', function(data){
+      //   console.log('data from GET: ', data)
+      // });
       response.writeHead( statusCode, headers );
+      console.log('output from GET: ', output);
       response.end(JSON.stringify(output));
 
     } else {
@@ -86,11 +91,13 @@ var requestHandler = function(request, response) {
     if (request.url === "/classes/messages") {
       statusCode = 201;
       request.on('data', function (data) {
-        output.results.push(JSON.stringify(data));
+        console.log('data: ', data);
+        output.results.push(JSON.parse(data));
+        console.log('output.results: ', output.results, '\n');
       });
 
       response.writeHead( statusCode, headers );
-      response.end(JSON.stringify(output));
+      response.end();
         // request ended -> do something with the data
         
       // parse the received body data
