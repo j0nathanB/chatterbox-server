@@ -50,7 +50,7 @@ var requestHandler = function(request, response) {
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
-  var obj = {request : []};
+  var output = {results : []} ;
 
   // Tell the client we are sending them plain text.
   //
@@ -71,11 +71,9 @@ var requestHandler = function(request, response) {
   // node to actually send all the data over to the client.
   if(request.method === "GET") {
     if (request.url === "/classes/messages") {
-      // console.log
-      // var obj = { results : [] };
       statusCode = 200;
       response.writeHead( statusCode, headers );
-      response.end(JSON.stringify(obj));
+      response.end(JSON.stringify(output));
 
     } else {
       statusCode = 404;
@@ -86,13 +84,13 @@ var requestHandler = function(request, response) {
 
   if (request.method === 'POST') {
     if (request.url === "/classes/messages") {
-      if (request !== undefined) {
-      }
-      
-      var obj = { results : [] };
       statusCode = 201;
+      request.on('data', function (data) {
+        output.results.push(JSON.stringify(data));
+      });
+
       response.writeHead( statusCode, headers );
-      response.end(JSON.stringify(obj));
+      response.end(JSON.stringify(output));
         // request ended -> do something with the data
         
       // parse the received body data
