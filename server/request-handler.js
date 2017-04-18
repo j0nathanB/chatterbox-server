@@ -30,7 +30,23 @@ var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
   // The outgoing status.
-  var statusCode = 200;
+  var statusCode = 900;
+
+  // These headers will allow Cross-Origin Resource Sharing (CORS).
+  // This code allows this server to talk to websites that
+  // are on different domains, for instance, your chat client.
+  //
+  // Your chat client is running from a url like file://your/chat/client/index.html,
+  // which is considered a different domain.
+  //
+  // Another way to get around this restriction is to serve you chat
+  // client from this domain by setting up static file serving.
+  var defaultCorsHeaders = {
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'access-control-allow-headers': 'content-type, accept',
+    'access-control-max-age': 10 // Seconds.
+  };
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -43,7 +59,7 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+  //response.writeHead(statusCode, headers);
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
@@ -55,54 +71,33 @@ var requestHandler = function(request, response) {
   if(request.method === "GET") {
     if (request.url === "/classes/messages") {
       var obj = { results : [] };
+      statusCode = 200;
+      response.writeHead( statusCode, headers );
       response.end(JSON.stringify(obj));
+
     } else {
-      response.end('no url extension:  GET Hello, World! request.url = ', request.url);
+      statusCode = 404;
+      response.writeHead( statusCode, headers );
+      response.end('Not a valid URL');
     }
   } 
 
   if (request.method === 'POST') {
-    console.log(statusCode + " " + request.method + " to " + request.url);
-    var fullBody = '';
-
     if (request.url === "/classes/messages") {
-
-      request.on('end', function() {
-        var obj = { results : [] };
-        response.end(JSON.stringify(obj));
+      var obj = { results : [] };
+      statusCode = 201;
+      response.writeHead( statusCode, headers );
+      response.end(JSON.stringify(obj));
         // request ended -> do something with the data
-        response.writeHead(200, "OK", {'Content-Type': 'text/html'});
         
-        // parse the received body data
-        var decodedBody = querystring.parse(fullBody);
-
-        // output the decoded data to the HTTP response          
-        response.write('<html><head><title>Post data</title></head><body><pre>');
-        response.write(utils.inspect(decodedBody));
-        response.write('</pre></body></html>');
-        
-        response.end();
-      });
+      // parse the received body data
     } else {
-      response.end('JUST Hello, World!');
+      statusCode = 404;
+      response.writeHead( statusCode, headers );
+      response.end('Not a valid URL');
+
     }
   }
-};
-
-// These headers will allow Cross-Origin Resource Sharing (CORS).
-// This code allows this server to talk to websites that
-// are on different domains, for instance, your chat client.
-//
-// Your chat client is running from a url like file://your/chat/client/index.html,
-// which is considered a different domain.
-//
-// Another way to get around this restriction is to serve you chat
-// client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
 };
 
 module.exports = {
