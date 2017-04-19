@@ -34,7 +34,7 @@ var requestHandler = function(request, response) {
 
   incomingUrl = url.parse(request.url).pathname;
   console.log("incomingUrl: ", incomingUrl);
-  console.log("incomingUrl: ", url.parse(request.url).search)
+  console.log("incomingUrl: ", url.parse(request.url).search);
 
   if (request.method === "GET") {
     if (incomingUrl === "/classes/messages") {
