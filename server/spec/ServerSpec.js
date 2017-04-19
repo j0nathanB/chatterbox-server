@@ -82,7 +82,6 @@ describe('Node Server Request Listener Function', function() {
     };
     var req = new stubs.request('/classes/messages', 'POST', stubMsg);
     var res = new stubs.response();
-
     handler.requestHandler(req, res);
 
     expect(res._responseCode).to.equal(201);
@@ -95,6 +94,7 @@ describe('Node Server Request Listener Function', function() {
 
     expect(res._responseCode).to.equal(200);
     var messages = JSON.parse(res._data).results;
+    console.log('\n ***SPEC***', messages[0].username === 'Jono', '\n');
     expect(messages.length).to.be.above(0);
     expect(messages[0].username).to.equal('Jono');
     expect(messages[0].message).to.equal('Do my bidding!');
